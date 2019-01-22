@@ -1,7 +1,7 @@
 const apiKey = "310b0bb0eed34e52a0533fc945ef7d01";
 const ethersProvider = new ethers.providers.InfuraProvider('homestead', apiKey);
 
-const transactions = {};
+const ledger = {};
 let totalEther = 0;
 
 const convertValueToEther = (value) => {
@@ -9,32 +9,31 @@ const convertValueToEther = (value) => {
   return parseFloat(ethers.utils.formatUnits(wei, 'ether'));
 }
 
-
-const addTransaction = async (transaction) => {
+const updateLedger = async (transaction) => {
   if (convertValueToEther(transaction.value) === 0) {
     return null;
   }
 
-  if (!transactions.hasOwnProperty(transaction.to)) {
-    transactions[transaction.to] = { sent: 0, received: 0, isContract: false }
+  if (!ledger.hasOwnProperty(transaction.to)) {
+    ledger[transaction.to] = { sent: 0, received: 0, isContract: false }
   }
 
-  if (!transactions.hasOwnProperty(transaction.from)) {
-    transactions[transaction.from] = { sent: 0, received: 0, isContract: false }
+  if (!ledger.hasOwnProperty(transaction.from)) {
+    ledger[transaction.from] = { sent: 0, received: 0, isContract: false }
   }
 
 
-  transactions[transaction.to].received += convertValueToEther(transaction.value);
-  transactions[transaction.from].sent += convertValueToEther(transaction.value);
+  ledger[transaction.to].received += convertValueToEther(transaction.value);
+  ledger[transaction.from].sent += convertValueToEther(transaction.value);
 
   const to = await ethersProvider.getCode(transaction.to);
   const from = await ethersProvider.getCode(transaction.from);
 
   if (to.toString().length > 42) {
-    transactions[transaction.to].isContract = true;
+    ledger[transaction.to].isContract = true;
   }
   if (from.toString().length > 42) {
-    transactions[transaction.from].isContract = true;
+    ledger[transaction.from].isContract = true;
   }
 }
 
@@ -43,7 +42,7 @@ const getTableData = async (blocks) => {
     await ethersProvider.getBlock(blockNumber).then((block) => {
       block.transactions.forEach(async (tx) => {
         await ethersProvider.getTransaction(tx).then((transaction) => {
-          addTransaction(transaction);
+          updateLedger(transaction);
           totalEther += transaction.value ? convertValueToEther(transaction.value) : 0;
         });
       });
@@ -70,16 +69,16 @@ const populateData = () => {
   let receivers = 0;
   let contractTransactions = 0;
 
-  for (const tx in transactions) {
-    $('tbody').append("<tr><td>" + tx + "</td><td>" + transactions[tx].received + "</td><td>" + transactions[tx].sent + "</td><td>" + transactions[tx].isContract + "</tr>");
+  for (const address in ledger) {
+    $('tbody').append("<tr><td>" + address + "</td><td>" + ledger[address].received + "</td><td>" + ledger[address].sent + "</td><td>" + ledger[address].isContract + "</tr>");
 
-    if (transactions[tx].received > 0) {
+    if (ledger[address].received > 0) {
       receivers++;
     }
-    if (transactions[tx].sent > 0) {
+    if (ledger[address].sent > 0) {
       senders++;
     }
-    if(transactions[tx].isContract) {
+    if(ledger[address].isContract) {
       contractTransactions++;
     }
   }
