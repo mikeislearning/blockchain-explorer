@@ -5,7 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mike's Blockchain Explorer</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -17,6 +16,9 @@
       h1 {
         margin: 20px 0px;
       }
+      label {
+        display: block;
+      }
     </style>
   </head>
   <body>
@@ -25,23 +27,26 @@
         <div class="col-lg-12" >
           <h1>Blockchain Explorer</h1>
           <h3 id="range"></h3>
-          <form id="blockSearch">
+          <form id="blockQuery">
+            <label for="numBlocks">Enter how many blocks far back from the present block to query</label>
             <input type="number" placeholder="# of blocks back" id="numBlocks" />
-            <button type="submit">Search</button>
+            <button type="submit">Query</button>
           </form>
-          <form id="rangeSearch">
-            <input type="number" placeholder="start range" id="start" />
-            <input type="number" placeholder="end range" id="end" />
-            <button type="submit">Search</button>
+          <h4>OR</h4>
+          <form id="rangeQuery">
+            <label for="start">Enter a range of block numbers to query</label>
+            <input type="number" placeholder="First block" id="start" />
+            <input type="number" placeholder="Last block" id="end" />
+            <button type="submit">Query</button>
           </form>
           <br />
-          <ul style="list-style: none">
-            <li>Total ether transferred: <span id="total"></span></li>
-            <li># of Senders: <span id="senders"></span></li>
-            <li># of Receivers: <span id="receivers"></span></li>
-            <li>Percentage of Contract Addresses: <span id="contractPercent"></span></li>
-            <li># of Events fired: <span id="events"></span></li>
-            <li></li>
+          <ul>
+            <li>Total ether transferred: <strong id="total"></strong></li>
+            <li># of Senders: <strong id="senders"></strong></li>
+            <li># of Receivers: <strong id="receivers"></strong></li>
+            <li># of Events fired: <strong id="events"></strong></li>
+            <li># of Contracts Created: <strong id="contractsCreated"></strong></li>
+            <li>Percentage of Contract Addresses: <strong id="contractPercent"></strong></li>
           </ul>
           <table class="table text-center">
             <thead>

@@ -1,8 +1,11 @@
 const apiKey = "310b0bb0eed34e52a0533fc945ef7d01";
 const ethersProvider = new ethers.providers.InfuraProvider('homestead', apiKey);
 
+// Will contain the addresses associated with the blocks being queried
 const ledger = {};
+// Total amount of ether involved in transactions in the block range
 let totalEther = 0;
+let contractsCreated = 0;
 
 const convertValueToEther = (value) => {
   const wei = ethers.utils.bigNumberify(value).toString();
@@ -37,34 +40,27 @@ const updateLedger = async (transaction) => {
   }
 }
 
-const getTableData = async (blocks) => {
+const parseBlocks = async (blocks) => {
+  $('#range').text('Loading...');
   for (const blockNumber of blocks) {
     await ethersProvider.getBlock(blockNumber).then((block) => {
-      block.transactions.forEach(async (tx) => {
-        await ethersProvider.getTransaction(tx).then((transaction) => {
+      block.transactions.forEach((tx) => {
+        ethersProvider.getTransaction(tx).then((transaction) => {
           updateLedger(transaction);
           totalEther += transaction.value ? convertValueToEther(transaction.value) : 0;
+        });
+        ethersProvider.getTransactionReceipt(tx).then((transaction) => {
+          if (transaction && transaction.contractAddress) {
+            contractsCreated++;
+          }
         });
       });
     });
   }
-  console.log('asdf', blocks);
-  const start = blocks[blocks.length - 1];
-  const end = blocks[0];
-  console.log('done!', start, end);
-  $('#range').text(`Showing data from blocks #${start} to #${end}`);
 
-  const filter = {
-    fromBlock: start,
-    toBlock: end,
-  }
-  const events = await ethersProvider.getLogs(filter);
-  console.log('hiiiii', events);
-  $('#events').text(events.length);
 }
 
-const populateData = () => {
-  console.log('populate!');
+const populateData = async (blocks) => {
   let senders = 0;
   let receivers = 0;
   let contractTransactions = 0;
@@ -83,56 +79,62 @@ const populateData = () => {
     }
   }
 
-  console.log('senders --->', senders)
-  console.log('receivers --->', receivers)
-  // console.log('onctrac --->', contractTransactions);
   const contractPercentage = ((contractTransactions / (senders + receivers)) * 100).toFixed(2);
-  console.log('mmooo', contractPercentage);
   $('#total').text(totalEther);
   $('#senders').text(senders);
   $('#receivers').text(receivers);
   $('#contractPercent').text(`${contractPercentage}%`);
+  $('#contractsCreated').text(contractsCreated);
 
+  const start = blocks[blocks.length - 1];
+  const end = blocks[0];
+  $('#range').text(`Showing data from blocks #${start} to #${end}`);
+
+  const filter = {
+    fromBlock: start,
+    toBlock: end,
+  }
+  const events = await ethersProvider.getLogs(filter);
+  $('#events').text(events.length);
 
 }
-// calculate total amount of ether - done
-// assemble an object containg addresses, their from, kjjj
-// List blocks in table
-const handleBlockSearch = async (e) => {
+
+// Queries blocks based on a range starting from the most recent
+const handleBlockQuery = async (e) => {
   e.preventDefault();
 
   const blocksBack = parseInt(document.getElementById('numBlocks').value);
   const blockNumber = await ethersProvider.getBlockNumber();
-  const values = [];
+  const blocks = [];
   for (let i = 0; i < (blocksBack + 1); i++) {
-    values.push(blockNumber - i);
+    blocks.push(blockNumber - i);
   }
 
-  await getTableData(values);
-  populateData();
+  await parseBlocks(blocks);
+  populateData(blocks);
 }
 
-
-const handleRangeSearch = async (e) => {
+// Queries blocks based on a range starting from the most recent
+const handleRangeQuery = async (e) => {
   e.preventDefault();
 
   const start = parseInt(document.getElementById('start').value);
   const end = parseInt(document.getElementById('end').value);
 
-  const values = [];
+  const blocks = [];
   const range = end - start + 1;
   for (let i = 0; i < range; i++) {
-    values.push(start + i);
+    blocks.push(start + i);
   }
+  blocks.reverse();
 
-  await getTableData(values);
-  populateData();
-
+  await parseBlocks(blocks);
+  populateData(blocks);
 }
 
 
-const form = document.getElementById('blockSearch')
-form.addEventListener('submit', handleBlockSearch, false);
+const form = document.getElementById('blockQuery')
+form.addEventListener('submit', handleBlockQuery, false);
 
-const otherForm = document.getElementById('rangeSearch')
-otherForm.addEventListener('submit', handleRangeSearch, false);
+const otherForm = document.getElementById('rangeQuery')
+otherForm.addEventListener('submit', handleRangeQuery, false);
