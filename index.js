@@ -5,13 +5,16 @@ const ethersProvider = new ethers.providers.InfuraProvider('homestead', apiKey);
 const ledger = {};
 // Total amount of ether involved in transactions in the block range
 let totalEther = 0;
+// Total number of contracts created in the range
 let contractsCreated = 0;
 
+// converts a transaction value into Ether
 const convertValueToEther = (value) => {
   const wei = ethers.utils.bigNumberify(value).toString();
   return parseFloat(ethers.utils.formatUnits(wei, 'ether'));
 }
 
+// Updates the shared ledger with a single transaction
 const updateLedger = async (transaction) => {
   if (convertValueToEther(transaction.value) === 0) {
     return null;
@@ -40,6 +43,8 @@ const updateLedger = async (transaction) => {
   }
 }
 
+// Extracts data from an array of blocks provided
+// The values it updates are variables shared throughout the file
 const parseBlocks = async (blocks) => {
   $('#range').text('Loading...');
   for (const blockNumber of blocks) {
@@ -60,7 +65,8 @@ const parseBlocks = async (blocks) => {
 
 }
 
-const populateData = async (blocks) => {
+// Renders data to the DOM
+const renderData = async (blocks) => {
   let senders = 0;
   let receivers = 0;
   let contractTransactions = 0;
@@ -80,23 +86,21 @@ const populateData = async (blocks) => {
   }
 
   const contractPercentage = ((contractTransactions / (senders + receivers)) * 100).toFixed(2);
-  $('#total').text(totalEther);
-  $('#senders').text(senders);
-  $('#receivers').text(receivers);
-  $('#contractPercent').text(`${contractPercentage}%`);
-  $('#contractsCreated').text(contractsCreated);
-
   const start = blocks[blocks.length - 1];
   const end = blocks[0];
-  $('#range').text(`Showing data from blocks #${start} to #${end}`);
-
   const filter = {
     fromBlock: start,
     toBlock: end,
   }
   const events = await ethersProvider.getLogs(filter);
-  $('#events').text(events.length);
 
+  $('#range').text(`Showing data from blocks #${start} to #${end}`);
+  $('#events').text(events.length);
+  $('#total').text(totalEther);
+  $('#senders').text(senders);
+  $('#receivers').text(receivers);
+  $('#contractPercent').text(`${contractPercentage}%`);
+  $('#contractsCreated').text(contractsCreated);
 }
 
 // Queries blocks based on a range starting from the most recent
@@ -111,7 +115,7 @@ const handleBlockQuery = async (e) => {
   }
 
   await parseBlocks(blocks);
-  populateData(blocks);
+  renderData(blocks);
 }
 
 // Queries blocks based on a range starting from the most recent
@@ -129,7 +133,7 @@ const handleRangeQuery = async (e) => {
   blocks.reverse();
 
   await parseBlocks(blocks);
-  populateData(blocks);
+  renderData(blocks);
 }
 
 
