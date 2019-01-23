@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha test.js",
     "start": "node server.js",
     "ganache": "ganache-cli --account='0x3141592653589793238462643383279502884197169399375105820974944592, 100000000000000000000', --account='0x4141592653589793238462643383279502884197169399375105820974944593, 100000000000000000000' --verbose"
   },
