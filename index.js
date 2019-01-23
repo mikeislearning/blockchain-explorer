@@ -1,6 +1,13 @@
 const apiKey = "310b0bb0eed34e52a0533fc945ef7d01";
 const ethersProvider = new ethers.providers.InfuraProvider('homestead', apiKey);
 
+const localProvider = new ethers.providers.JsonRpcProvider('http://localhost:7545');
+
+console.log('woooot', localProvider);
+
+const account = '0x9bfA3aaeed62b74F0588C5b79B11fcD1703B2dbe';
+
+
 // Will contain the addresses associated with the blocks being queried
 const ledger = {};
 // Total amount of ether involved in transactions in the block range
@@ -13,6 +20,28 @@ const convertValueToEther = (value) => {
   const wei = ethers.utils.bigNumberify(value).toString();
   return parseFloat(ethers.utils.formatUnits(wei, 'ether'));
 }
+
+const woot = async () => {
+  const blocko = await localProvider.getBlockNumber();
+  console.log('asdfasdfadsff', blocko);
+  const moo = await localProvider.getBalance(account);
+  console.log('count: ', convertValueToEther(moo));
+  const accounts = await localProvider.listAccounts();
+  console.log('heyyy', accounts);
+  const signer = localProvider.getSigner(accounts[0]);
+  const transaction = {
+    from: accounts[0],
+    to: accounts[1],
+    value: 1,
+  }
+
+  const test = await accounts[0].sendTransaction(transaction);
+  console.log('testing --->', test);
+
+}
+
+woot();
+
 
 // Updates the shared ledger with a single transaction
 const updateLedger = async (transaction) => {
