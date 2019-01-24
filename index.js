@@ -1,12 +1,5 @@
-const apiKey = "310b0bb0eed34e52a0533fc945ef7d01";
-const ethersProvider = new ethers.providers.InfuraProvider('homestead', apiKey);
-
-const ganachePath = 'http://localhost:8545';
-
-const localProvider = new ethers.providers.JsonRpcProvider(ganachePath);
-
-const account = '0x9bfA3aaeed62b74F0588C5b79B11fcD1703B2dbe';
-
+const API_KEY = '310b0bb0eed34e52a0533fc945ef7d01';
+const ethersProvider = new ethers.providers.InfuraProvider('homestead', API_KEY);
 
 // Will contain the addresses associated with the blocks being queried
 const ledger = {};
@@ -20,47 +13,6 @@ const convertValueToEther = (value) => {
   const wei = ethers.utils.bigNumberify(value).toString();
   return parseFloat(ethers.utils.formatUnits(wei, 'ether'));
 }
-
-
-// TODO - delete all this
-const woot = async () => {
-  const blocko = await localProvider.getBlockNumber();
-  console.log('asdfasdfadsff', blocko);
-
-
-  const accounts = await localProvider.listAccounts();
-  console.log('heyyy', accounts);
-
-  const balanceOne = await localProvider.getBalance(accounts[0]);
-  const balanceTwo = await localProvider.getBalance(accounts[1]);
-  console.log('count: ', convertValueToEther(balanceTwo));
-
-  const transaction = {
-    chainId: ethers.utils.getNetwork('homestead').chainId,
-    data: "0x",
-    gasLimit: 21000,
-    gasPrice: ethers.utils.bigNumberify("20000000000"),
-    nonce: 1,
-    // This ensures the transaction cannot be replayed on different networks
-    value: ethers.utils.parseEther("0.2"),
-    to: accounts[1],
-  };
-
-  const privateKeyOne = "0x3141592653589793238462643383279502884197169399375105820974944592";
-  const privateKeyTwo = "0x4141592653589793238462643383279502884197169399375105820974944593";
-
-  const wallet = new ethers.Wallet(privateKeyOne);
-
-  const signPromise = await wallet.sign(transaction);
-
-  console.log('trans is', signPromise);
-  // const test = await localProvider.sendTransaction(signPromise);
-  // console.log('testing --->', test);
-
-}
-
-woot();
-
 
 // Updates the shared ledger with a single transaction
 const updateLedger = async (transaction) => {

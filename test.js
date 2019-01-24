@@ -1,9 +1,13 @@
 const assert = require('assert');
 const ethers = require('ethers');
 
-const ganachePath = 'http://localhost:8545';
-const localProvider = new ethers.providers.JsonRpcProvider(ganachePath);
+const GANACHE_PATH = 'http://localhost:8545';
+const PUBLIC_KEY_ONE = '0x7357589f8e367c2C31F51242fB77B350A11830F3';
+const PUBLIC_KEY_TWO = '0x39F9532E0db51A8c79e7e896B092Ac6C2d13979d';
+const PRIVATE_KEY_ONE = '0x3141592653589793238462643383279502884197169399375105820974944592';
+const PRIVATE_KEY_TWO = '0x4141592653589793238462643383279502884197169399375105820974944593';
 
+const localProvider = new ethers.providers.JsonRpcProvider(GANACHE_PATH);
 // Will contain the addresses associated with the blocks being queried
 const ledger = {};
 // Total amount of ether involved in transactions in the block range
@@ -35,8 +39,8 @@ const updateLedger = async (transaction) => {
   ledger[transaction.to].received += convertValueToEther(transaction.value);
   ledger[transaction.from].sent += convertValueToEther(transaction.value);
 
-  const to = await ethersProvider.getCode(transaction.to);
-  const from = await ethersProvider.getCode(transaction.from);
+  const to = await localProvider.getCode(transaction.to);
+  const from = await localProvider.getCode(transaction.from);
 
   if (to.toString().length > 42) {
     ledger[transaction.to].isContract = true;
@@ -50,21 +54,22 @@ const updateLedger = async (transaction) => {
 // The values it updates are variables shared throughout the file
 const constructLedger = async (blocks) => {
   for (const blockNumber of blocks) {
-    await ethersProvider.getBlock(blockNumber).then((block) => {
-      block.transactions.forEach((tx) => {
-        ethersProvider.getTransaction(tx).then((transaction) => {
-          updateLedger(transaction);
+    await localProvider.getBlock(blockNumber).then(async (block) => {
+      await block.transactions.forEach(async (tx) => {
+        await localProvider.getTransaction(tx).then(async (transaction) => {
+          await updateLedger(transaction);
           totalEther += transaction.value ? convertValueToEther(transaction.value) : 0;
         });
-        ethersProvider.getTransactionReceipt(tx).then((transaction) => {
-          if (transaction && transaction.contractAddress) {
-            contractsCreated++;
-          }
-        });
+        // await localProvider.getTransactionReceipt(tx).then((transaction) => {
+          // if (transaction && transaction.contractAddress) {
+            // contractsCreated++;
+          // }
+        // });
       });
     });
   }
 }
+
 // Renders data to the DOM
 const getDataFromLedger = async (blocks) => {
   let senders = 0;
@@ -90,7 +95,7 @@ const getDataFromLedger = async (blocks) => {
     fromBlock: start,
     toBlock: end,
   }
-  const events = await ethersProvider.getLogs(filter);
+  const events = await localProvider.getLogs(filter);
 
   return {
     contractPercentage,
@@ -102,19 +107,69 @@ const getDataFromLedger = async (blocks) => {
   };
 }
 
-// console.log(localProvider);
-
 // code copying it is
 // break code down into individual functions I can test
 // test the object
 
 describe('Functional tests', function() {
-  describe('#indexOf()', function() {
-    it('should return -1 when the value is not present', async () => {
-      const blockNumber = await localProvider.getBlockNumber();
-      const blocks = [blockNumber];
-      console.log('hiiii', blocks);
-      assert.equal([1,2,3].indexOf(4), -1);
+  let blockNumber;
+  let blocks;
+  beforeEach(async () => {
+    blockNumber = await localProvider.getBlockNumber();
+    blocks = [blockNumber];
+  })
+  describe('Report data', function() {
+    it('should calculate correct report data', async () => {
+      // const blockNumber = await localProvider.getBlockNumber();
+      // const blocks = [blockNumber];
+      const transaction = {
+        chainId: ethers.utils.getNetwork('homestead').chainId,
+        data: "0x",
+        gasLimit: 21000,
+        gasPrice: ethers.utils.bigNumberify("20000000000"),
+        nonce: 0,
+        // This ensures the transaction cannot be replayed on different networks
+        value: ethers.utils.parseEther("0.2"),
+        to: PUBLIC_KEY_TWO,
+      };
+
+      const wallet = new ethers.Wallet(PRIVATE_KEY_ONE);
+
+      const signPromise = await wallet.sign(transaction);
+      const result = await localProvider.sendTransaction(signPromise);
+
+      // I NEED THIS
+      await constructLedger(blocks);
+      console.log('LEDGER ONE', ledger);
+      // TO FINISH BEFORE THIS STARTS
+      await getDataFromLedger(blocks);
+      console.log('LEDGER TWO', ledger);
+      assert.equal(ledger[PUBLIC_KEY_ONE].sent, 0.2);
+      assert.equal(ledger[PUBLIC_KEY_ONE].isContract, false);
+      assert.equal(ledger[PUBLIC_KEY_TWO].received, 0.2);
+      assert.equal(ledger[PUBLIC_KEY_TWO].isContract, false);
+
+
+    });
+  });
+  describe('Balances', function() {
+    it('should return correct balances for both public keys', async () => {
+      const balanceOne = await localProvider.getBalance(PUBLIC_KEY_ONE);
+      const balanceTwo = await localProvider.getBalance(PUBLIC_KEY_TWO);
+
+      assert.equal(convertValueToEther(balanceOne), 99.79958);
+      assert.equal(convertValueToEther(balanceTwo), 100.2);
+
+    });
+  });
+  describe('Report data', function() {
+    it('should return report data', async () => {
+      // const blockNumber = await localProvider.getBlockNumber();
+      // const blocks = [blockNumber];
+      const data = await getDataFromLedger(blocks);
+      console.log('DATAAAA', data);
+
+
     });
   });
 });
