@@ -5,8 +5,6 @@ const ganachePath = 'http://localhost:8545';
 
 const localProvider = new ethers.providers.JsonRpcProvider(ganachePath);
 
-console.log('woooot', localProvider);
-
 const account = '0x9bfA3aaeed62b74F0588C5b79B11fcD1703B2dbe';
 
 
@@ -23,6 +21,8 @@ const convertValueToEther = (value) => {
   return parseFloat(ethers.utils.formatUnits(wei, 'ether'));
 }
 
+
+// TODO - delete all this
 const woot = async () => {
   const blocko = await localProvider.getBlockNumber();
   console.log('asdfasdfadsff', blocko);
@@ -93,7 +93,7 @@ const updateLedger = async (transaction) => {
 
 // Extracts data from an array of blocks provided
 // The values it updates are variables shared throughout the file
-const parseBlocks = async (blocks) => {
+const constructLedger = async (blocks) => {
   $('#range').text('Loading...');
   for (const blockNumber of blocks) {
     await ethersProvider.getBlock(blockNumber).then((block) => {
@@ -113,7 +113,7 @@ const parseBlocks = async (blocks) => {
 }
 
 // Renders data to the DOM
-const renderData = async (blocks) => {
+const getDataFromLedger = async (blocks) => {
   let senders = 0;
   let receivers = 0;
   let contractTransactions = 0;
@@ -142,12 +142,35 @@ const renderData = async (blocks) => {
   const events = await ethersProvider.getLogs(filter);
 
   $('#range').text(`Showing data from blocks #${start} to #${end}`);
-  $('#events').text(events.length);
+
+
+  return {
+    contractPercentage,
+    contractsCreated,
+    events: events.length,
+    receivers,
+    senders,
+    totalEther,
+  };
+}
+
+const renderData = ({
+  contractPercentage,
+  contractsCreated,
+  events,
+  receivers,
+  senders,
+  totalEther,
+}) => {
+
+
+  $('#events').text(events);
   $('#total').text(totalEther);
   $('#senders').text(senders);
   $('#receivers').text(receivers);
   $('#contractPercent').text(`${contractPercentage}%`);
   $('#contractsCreated').text(contractsCreated);
+
 }
 
 // Queries blocks based on a range starting from the most recent
@@ -161,8 +184,9 @@ const handleBlockQuery = async (e) => {
     blocks.push(blockNumber - i);
   }
 
-  await parseBlocks(blocks);
-  renderData(blocks);
+  await constructLedger(blocks);
+  const data = await getDataFromLedger(blocks);
+  renderData(data);
 }
 
 // Queries blocks based on a range starting from the most recent
@@ -179,8 +203,9 @@ const handleRangeQuery = async (e) => {
   }
   blocks.reverse();
 
-  await parseBlocks(blocks);
-  renderData(blocks);
+  await constructLedger(blocks);
+  const data = await getDataFromLedger(blocks);
+  renderData(data);
 }
 
 

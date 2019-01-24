@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/mikeislearning/blockchain-explorer#readme",
   "dependencies": {
+    "ethers": "^4.0.22",
     "express": "^4.16.4"
   },
   "devDependencies": {
