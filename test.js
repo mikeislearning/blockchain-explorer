@@ -140,7 +140,7 @@ describe('Functional tests', function() {
 
       const blocks = [blockNumber];
       const data = await constructLedger(blocks);
-      
+
       await delay(1500);
 
       const result = await getDataFromLedger(blocks);
