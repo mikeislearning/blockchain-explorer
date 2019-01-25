@@ -161,8 +161,8 @@ const handleRangeQuery = async (e) => {
 }
 
 
-const form = document.getElementById('blockQuery')
-form.addEventListener('submit', handleBlockQuery, false);
+const blockForm = document.getElementById('blockQuery')
+blockForm.addEventListener('submit', handleBlockQuery, false);
 
-const otherForm = document.getElementById('rangeQuery')
-otherForm.addEventListener('submit', handleRangeQuery, false);
+const rangeForm = document.getElementById('rangeQuery')
+rangeForm.addEventListener('submit', handleRangeQuery, false);
