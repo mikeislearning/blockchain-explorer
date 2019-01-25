@@ -1,7 +1,6 @@
 const assert = require('assert');
-const delay = require('delay');
 const ethers = require('ethers');
-const ganache = require('ganache-cli');
+// const ganache = require('ganache-cli');
 
 const PUBLIC_KEY_ONE = '0x7357589f8e367c2C31F51242fB77B350A11830F3';
 const PUBLIC_KEY_TWO = '0x39F9532E0db51A8c79e7e896B092Ac6C2d13979d';
