@@ -79,16 +79,11 @@ const constructLedger = async (blocks) => {
 
   const [ result ] = await Promise.all(promises);
 
-  const morePromises = [];
   for (transaction of result.transactions) {
     const tx = await localProvider.getTransaction(transaction);
-    morePromises.push(updateLedger(tx));
+    await updateLedger(tx);
     totalEther += tx.value ? convertValueToEther(tx.value) : 0;
   }
-
-  const resultTwo = await Promise.all(morePromises);
-  // console.log('hi there', promises);
-  // const result = await Promise.all(promises);
 }
 
 // Renders data to the DOM
@@ -128,6 +123,7 @@ const getDataFromLedger = async (blocks) => {
   };
 }
 
+// creates a transaction on the ganache blockchain
 const createTransaction = async (blockDetails) => {
   const transaction = {
     chainId: ethers.utils.getNetwork('homestead').chainId,

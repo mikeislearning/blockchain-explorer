@@ -49,10 +49,8 @@ const constructLedger = async (blocks) => {
   $('#range').text('Loading...');
   for (const blockNumber of blocks) {
     await ethersProvider.getBlock(blockNumber).then((block) => {
-      // console.log('yoooo', block);
       block.transactions.forEach((tx) => {
         ethersProvider.getTransaction(tx).then((transaction) => {
-          console.log('trans:', transaction);
           updateLedger(transaction);
           totalEther += transaction.value ? convertValueToEther(transaction.value) : 0;
         });
