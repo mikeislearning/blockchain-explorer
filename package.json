@@ -1,7 +1,7 @@
 {
   "name": "blockchain-explorer",
   "version": "1.0.0",
-  "description": "",
+  "description": "Scans the blockchain for the details of ranges of blocks",
   "main": "index.js",
   "scripts": {
     "test": "mocha test.js",
@@ -19,11 +19,12 @@
   },
   "homepage": "https://github.com/mikeislearning/blockchain-explorer#readme",
   "dependencies": {
-    "delay": "^4.1.0",
     "ethers": "^4.0.22",
     "express": "^4.16.4"
   },
   "devDependencies": {
+    "delay": "^4.1.0",
+    "ganache-cli": "^6.2.5",
     "mocha": "^5.2.0"
   }
 }
