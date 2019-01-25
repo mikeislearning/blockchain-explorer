@@ -144,7 +144,7 @@ const createTransaction = async (blockDetails) => {
 }
 
 
-describe('Functional tests', function() {
+describe('Functional tests', () => {
   let blockNumber;
   let blocks;
   before(async () => {
@@ -154,7 +154,7 @@ describe('Functional tests', function() {
     await createTransaction(blockDetails);
     await constructLedger(blocks);
   })
-  describe('Ledger data', function() {
+  describe('Ledger data', () => {
     it('should get correct data from the ledger', async () => {
       assert.equal(ledger[PUBLIC_KEY_ONE].sent, 0.2);
       assert.equal(ledger[PUBLIC_KEY_ONE].isContract, false);
@@ -163,7 +163,7 @@ describe('Functional tests', function() {
 
     });
   });
-  describe('Report data', function() {
+  describe('Report data', () => {
     it('should return correct report data', async () => {
       const result = await getDataFromLedger(blocks);
       assert.equal(result.contractPercentage, 0.00);
