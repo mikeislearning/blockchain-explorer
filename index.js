@@ -95,7 +95,6 @@ const getDataFromLedger = async (blocks) => {
 
   $('#range').text(`Showing data from blocks #${start} to #${end}`);
 
-
   return {
     contractPercentage,
     contractsCreated,
@@ -106,6 +105,7 @@ const getDataFromLedger = async (blocks) => {
   };
 }
 
+// renders the data to the DOM
 const renderData = ({
   contractPercentage,
   contractsCreated,
