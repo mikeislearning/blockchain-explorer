@@ -14,9 +14,6 @@ Go to `localhost:8000` in your browser
 
 To test the app:
 
-Run `npm run ganache`
-
-Open another tab and run `npm test`
-It should fail the first time, and succeed the second time
+Run `npm test`
 
 ![alt text](https://raw.githubusercontent.com/mikeislearning/blockchain-explorer/master/screenshot.png)

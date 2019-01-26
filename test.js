@@ -1,6 +1,6 @@
 const assert = require('assert');
 const ethers = require('ethers');
-// const ganache = require('ganache-cli');
+const ganache = require('ganache-cli');
 
 const PUBLIC_KEY_ONE = '0x7357589f8e367c2C31F51242fB77B350A11830F3';
 const PUBLIC_KEY_TWO = '0x39F9532E0db51A8c79e7e896B092Ac6C2d13979d';
@@ -8,23 +8,23 @@ const PRIVATE_KEY_ONE = '0x31415926535897932384626433832795028841971693993751058
 const PRIVATE_KEY_TWO = '0x4141592653589793238462643383279502884197169399375105820974944593';
 
 // Use local ganache module:
-// const localProvider = new ethers.providers.Web3Provider(ganache.provider({
-  // accounts: [
-    // {
-      // balance: ethers.utils.parseEther('100'),
-      // secretKey: PRIVATE_KEY_ONE,
-    // },
-    // {
-      // balance: ethers.utils.parseEther('100'),
-      // secretKey: PRIVATE_KEY_TWO,
-    // }
-  // ],
-  // debug: true,
-// }));
+const localProvider = new ethers.providers.Web3Provider(ganache.provider({
+  accounts: [
+    {
+      balance: ethers.utils.parseEther('100'),
+      secretKey: PRIVATE_KEY_ONE,
+    },
+    {
+      balance: ethers.utils.parseEther('100'),
+      secretKey: PRIVATE_KEY_TWO,
+    }
+  ],
+  debug: true,
+}));
 
 // Use with global ganache-cli:
-const GANACHE_PATH = 'http://localhost:8545';
-const localProvider = new ethers.providers.JsonRpcProvider(GANACHE_PATH);
+// const GANACHE_PATH = 'http://localhost:8545';
+// const localProvider = new ethers.providers.JsonRpcProvider(GANACHE_PATH);
 
 // Will contain the addresses associated with the blocks being queried
 let ledger = {};
@@ -148,10 +148,10 @@ describe('Functional tests', () => {
   let blockNumber;
   let blocks;
   before(async () => {
-    blockNumber = await localProvider.getBlockNumber();
-    blocks = [blockNumber];
     const blockDetails = await localProvider.getBlock(blockNumber);
     await createTransaction(blockDetails);
+    blockNumber = await localProvider.getBlockNumber();
+    blocks = [blockNumber];
     await constructLedger(blocks);
   })
   describe('Ledger data', () => {
