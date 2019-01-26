@@ -140,7 +140,6 @@ const createTransaction = async (blockDetails) => {
   const signPromise = await wallet.sign(transaction);
   const sentTransaction = await localProvider.sendTransaction(signPromise);
   return sentTransaction;
-
 }
 
 
