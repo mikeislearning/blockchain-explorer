@@ -82,6 +82,10 @@ const constructLedger = async (blocks) => {
     const tx = await localProvider.getTransaction(transaction);
     await updateLedger(tx);
     totalEther += tx.value ? convertValueToEther(tx.value) : 0;
+    const receipt = await localProvider.getTransactionReceipt(transaction);
+    if (receipt && receipt.contractAddress) {
+      contractsCreated++
+    }
   }
 }
 
@@ -147,7 +151,7 @@ describe('Functional tests', () => {
   let blockNumber;
   let blocks;
   before(async () => {
-    const blockDetails = await localProvider.getBlock(blockNumber);
+    const blockDetails = await localProvider.getBlock();
     await createTransaction(blockDetails);
     blockNumber = await localProvider.getBlockNumber();
     blocks = [blockNumber];
@@ -170,6 +174,7 @@ describe('Functional tests', () => {
       assert.equal(result.senders, 1);
       assert.equal(result.receivers, 1);
       assert.equal(result.totalEther, 0.2);
+      assert.equal(result.contractsCreated, 0);
     });
   });
 });

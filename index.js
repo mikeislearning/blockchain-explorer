@@ -28,7 +28,6 @@ const updateLedger = async (transaction) => {
     ledger[transaction.from] = { sent: 0, received: 0, isContract: false }
   }
 
-
   ledger[transaction.to].received += convertValueToEther(transaction.value);
   ledger[transaction.from].sent += convertValueToEther(transaction.value);
 
