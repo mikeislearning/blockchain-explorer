@@ -1,4 +1,4 @@
-# Mike's Blockchain Explorer
+# Basic Blockchain Explorer
 
 This app allows you to query the blockchain, and receive transaction data, either starting at a latest block, or querying a range of blocks.
 
