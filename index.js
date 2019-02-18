@@ -1,4 +1,4 @@
-const API_KEY = '310b0bb0eed34e52a0533fc945ef7d01';
+const API_KEY = // insert INFURA API KEY HERE;
 const ethersProvider = new ethers.providers.InfuraProvider('homestead', API_KEY);
 
 // Will contain the addresses associated with the blocks being queried
